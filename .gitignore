@@ -2,6 +2,7 @@ node_modules/
 dist/
 *.tsbuildinfo
 bun.lockb
+bun.lock
 docs/node_modules/
 docs/dist/
 docs/.astro/
