@@ -1,0 +1,32 @@
+---
+title: stitch-js
+description: A tiny, composable progressive enhancement framework for the browser.
+template: splash
+hero:
+  tagline: Enhance existing HTML with interactive behavior — without a virtual DOM, SPA framework, or build step requirement.
+  actions:
+    - text: Get Started
+      link: /stitch-js/guides/getting-started/
+      icon: right-arrow
+    - text: View on GitHub
+      link: https://github.com/beardcoder/stitch-js
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<CardGrid stagger>
+  <Card title="Progressive Enhancement First" icon="approve-check">
+    HTML works without JavaScript. Layer interactivity on top for capable browsers.
+  </Card>
+  <Card title="Tiny & Tree-Shakeable" icon="rocket">
+    ~2.7 kB min+gz full bundle, no dependencies. Import only what you use.
+  </Card>
+  <Card title="Reactive Store" icon="random">
+    `createStore`, `computed`, and `effect` for lightweight state management.
+  </Card>
+  <Card title="Accessible" icon="heart">
+    ARIA-aware utilities built in. Keyboard navigation support for all components.
+  </Card>
+</CardGrid>
