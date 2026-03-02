@@ -1,0 +1,17 @@
+{
+  "name": "stitch-js-docs",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^5.18.0",
+    "@astrojs/starlight": "^0.37.6",
+    "sharp": "^0.34.5"
+  }
+}
