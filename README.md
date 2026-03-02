@@ -11,10 +11,24 @@ Enhance existing HTML with interactive behavior — without a virtual DOM, SPA f
 - **Reactive store** — `createStore`, `computed`, and `effect` for state management
 - **Tree-shakeable** — import only what you use
 - **Accessible** — ARIA-aware utilities built in
-- **Tiny** — minimal runtime, no dependencies
+- **Tiny** — ~2.7 kB min+gz full bundle, no dependencies
 - **TypeScript** — strict types and great DX
 - **Composable** — stack multiple behaviors on one element
 - **Idempotent** — safe to call `enhance()` multiple times
+
+## Bundle Size
+
+All sizes are minified + gzipped. Tree-shaking ensures you only pay for what you import.
+
+| Import | min | min+gz |
+|---|--:|--:|
+| Full bundle (everything) | 6,284 B | **2,709 B** |
+| Core only (`enhance`, `defineComponent`, etc.) | 2,130 B | **1,116 B** |
+| Store only (`createStore`, `computed`, `effect`) | 748 B | **361 B** |
+| Core + Tabs | 2,789 B | **1,387 B** |
+| Core + Accordion | 2,841 B | **1,393 B** |
+| Core + Form | 2,571 B | **1,352 B** |
+| Core + Animate | 2,156 B | **1,131 B** |
 
 ## Install
 
