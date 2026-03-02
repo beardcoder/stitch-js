@@ -15,6 +15,7 @@ await Bun.build({
     "src/components/accordion.ts",
     "src/components/form.ts",
     "src/components/animate.ts",
+    "src/utils/logger.ts",
   ],
   outdir: "dist",
   format: "esm",
