@@ -27,7 +27,7 @@ export type {
 export type { ComponentContext, SetupFn } from "./core/component.js";
 export type { Store, Computed, Listener } from "./core/store.js";
 export type { PersistedStoreOptions } from "./core/persisted.js";
-export type { Router, RouteState, RouteParams } from "./core/router.js";
+export type { Router, RouterOptions, RouteState, RouteParams } from "./core/router.js";
 export type { TabsOptions } from "./components/tabs.js";
 export type { AccordionOptions } from "./components/accordion.js";
 export type { FormOptions } from "./components/form.js";

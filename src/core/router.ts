@@ -14,6 +14,18 @@ export interface RouteState {
   pattern: string;
 }
 
+/** Options accepted by {@link createRouter}. */
+export interface RouterOptions {
+  /**
+   * Optional namespace key for multi-router support.
+   *
+   * When set, the router reads/writes only its own portion of the hash
+   * using a `key=value` encoding (e.g. `#tabs=tab1&accordion=section1`).
+   * This lets multiple routers coexist without interfering with each other.
+   */
+  key?: string;
+}
+
 /** A read-only store for the current route, plus a navigation helper. */
 export interface Router {
   /** Get the current route state. */
@@ -42,8 +54,21 @@ export interface Router {
  *
  * router.push("users/42"); // logs "users/42" { id: "42" }
  * ```
+ *
+ * @example Multiple routers with namespaced keys
+ * ```ts
+ * const tabRouter = createRouter(["tab1", "tab2"], { key: "tabs" });
+ * const accordionRouter = createRouter(["section1", "section2"], { key: "accordion" });
+ *
+ * tabRouter.push("tab1");           // hash → #tabs=tab1
+ * accordionRouter.push("section1"); // hash → #tabs=tab1&accordion=section1
+ * ```
  */
-export function createRouter(patterns: string[] = []): Router {
+export function createRouter(
+  patterns: string[] = [],
+  options: RouterOptions = {},
+): Router {
+  const { key } = options;
   const listeners = new Set<Listener<RouteState>>();
 
   /** Turn a pattern like `users/:id/posts/:postId` into a regex + param names. */
@@ -72,8 +97,29 @@ export function createRouter(patterns: string[] = []): Router {
     return { path, params: {}, pattern: "" };
   }
 
-  function currentPath(): string {
+  function rawHash(): string {
     return (globalThis.location?.hash ?? "#").slice(1);
+  }
+
+  /** Parse a keyed hash like `key1=value1&key2=value2` into a Map. */
+  function parseKeyedHash(hash: string): Map<string, string> {
+    const map = new Map<string, string>();
+    if (!hash) return map;
+    for (const part of hash.split("&")) {
+      const eq = part.indexOf("=");
+      if (eq !== -1)
+        map.set(
+          decodeURIComponent(part.slice(0, eq)),
+          decodeURIComponent(part.slice(eq + 1)),
+        );
+    }
+    return map;
+  }
+
+  function currentPath(): string {
+    const raw = rawHash();
+    if (!key) return raw;
+    return parseKeyedHash(raw).get(key) ?? "";
   }
 
   let value: RouteState = resolve(currentPath());
@@ -108,7 +154,18 @@ export function createRouter(patterns: string[] = []): Router {
 
     push(path: string) {
       if (typeof globalThis.location !== "undefined") {
-        globalThis.location.hash = path;
+        if (key) {
+          const map = parseKeyedHash(rawHash());
+          map.set(key, path);
+          const parts: string[] = [];
+          for (const [k, v] of map)
+            parts.push(
+              `${encodeURIComponent(k)}=${encodeURIComponent(v)}`,
+            );
+          globalThis.location.hash = parts.join("&");
+        } else {
+          globalThis.location.hash = path;
+        }
       }
       // In environments without hashchange events, resolve manually.
       const prev = value;

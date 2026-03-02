@@ -114,4 +114,98 @@ describe("createRouter", () => {
     expect(router.get().pattern).toBe("");
     router.destroy();
   });
+
+  describe("keyed routers (multi-router support)", () => {
+    it("scopes push to its own key in the hash", () => {
+      const router = createRouter(["tab1", "tab2"], { key: "tabs" });
+      router.push("tab1");
+      expect(router.get().path).toBe("tab1");
+      expect(router.get().pattern).toBe("tab1");
+      router.destroy();
+    });
+
+    it("two keyed routers coexist without interfering", () => {
+      const tabRouter = createRouter(["tab1", "tab2"], { key: "tabs" });
+      const accordionRouter = createRouter(["section1", "section2"], {
+        key: "accordion",
+      });
+
+      tabRouter.push("tab1");
+      expect(tabRouter.get().path).toBe("tab1");
+      expect(tabRouter.get().pattern).toBe("tab1");
+
+      accordionRouter.push("section1");
+      expect(accordionRouter.get().path).toBe("section1");
+      expect(accordionRouter.get().pattern).toBe("section1");
+
+      // Tab router state should be unaffected by accordion push
+      expect(tabRouter.get().path).toBe("tab1");
+
+      tabRouter.destroy();
+      accordionRouter.destroy();
+    });
+
+    it("keyed router matches patterns with params", () => {
+      const router = createRouter(["users/:id"], { key: "main" });
+      router.push("users/42");
+      expect(router.get().path).toBe("users/42");
+      expect(router.get().params).toEqual({ id: "42" });
+      router.destroy();
+    });
+
+    it("keyed router notifies subscribers on push", () => {
+      const router = createRouter(["a", "b"], { key: "nav" });
+      const log: string[] = [];
+      router.subscribe((route) => log.push(route.path));
+
+      router.push("a");
+      expect(log).toEqual(["a"]);
+      router.destroy();
+    });
+
+    it("keyed router does not notify when pushing the same path", () => {
+      const router = createRouter(["a"], { key: "nav" });
+      router.push("a");
+
+      const log: string[] = [];
+      router.subscribe((route) => log.push(route.path));
+
+      router.push("a");
+      expect(log).toEqual([]);
+      router.destroy();
+    });
+
+    it("keyed router preserves other router state on push", () => {
+      const tabRouter = createRouter(["tab1", "tab2"], { key: "tabs" });
+      const accordionRouter = createRouter(["s1", "s2"], {
+        key: "accordion",
+      });
+
+      tabRouter.push("tab1");
+      accordionRouter.push("s1");
+
+      // Now update tabs — accordion state should remain
+      tabRouter.push("tab2");
+      expect(tabRouter.get().path).toBe("tab2");
+      expect(accordionRouter.get().path).toBe("s1");
+
+      // Update accordion — tabs state should remain
+      accordionRouter.push("s2");
+      expect(accordionRouter.get().path).toBe("s2");
+      expect(tabRouter.get().path).toBe("tab2");
+
+      tabRouter.destroy();
+      accordionRouter.destroy();
+    });
+
+    it("destroy cleans up keyed router listeners", () => {
+      const router = createRouter(["x"], { key: "test" });
+      const log: string[] = [];
+      router.subscribe((route) => log.push(route.path));
+
+      router.destroy();
+      router.push("x");
+      expect(log).toEqual([]);
+    });
+  });
 });
