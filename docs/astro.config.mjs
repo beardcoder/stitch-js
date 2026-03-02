@@ -22,6 +22,7 @@ export default defineConfig({
           items: [
             { label: "Getting Started", slug: "guides/getting-started" },
             { label: "Custom Components", slug: "guides/custom-components" },
+            { label: "Advanced Examples", slug: "guides/advanced-examples" },
           ],
         },
         {
