@@ -55,6 +55,34 @@ export interface ComponentContext<O> {
 
   /** Emit a custom event from the root element. */
   emit(name: string, detail?: unknown): void;
+
+  /**
+   * Read structured data from the HTML.
+   *
+   * Looks for data in this order:
+   * 1. `<script type="application/json">` child element (for large payloads)
+   * 2. `data-props` attribute parsed as JSON
+   * 3. All `data-*` attributes collected into a plain object
+   *
+   * Use this to pass configuration from server-rendered HTML to JS,
+   * e.g. table column definitions, API endpoints, initial datasets.
+   *
+   * @example
+   * ```html
+   * <div data-table>
+   *   <script type="application/json">
+   *     { "columns": [...], "rows": [...] }
+   *   </script>
+   * </div>
+   * ```
+   * ```ts
+   * const table = defineComponent({}, (ctx) => {
+   *   const { columns, rows } = ctx.data<TableProps>();
+   *   initTanStackTable(ctx.el, { columns, rows });
+   * });
+   * ```
+   */
+  data<T = Record<string, unknown>>(): T;
 }
 
 /** Setup function signature for `defineComponent`. */
@@ -168,6 +196,42 @@ export function defineComponent<O extends object = Record<string, never>>(
 
         emit(name: string, detail?: unknown) {
           el.dispatchEvent(new CustomEvent(name, { detail, bubbles: true }));
+        },
+
+        data<T = Record<string, unknown>>(): T {
+          // 1. <script type="application/json"> inside the element
+          const script = el.querySelector<HTMLScriptElement>(
+            'script[type="application/json"]',
+          );
+          if (script?.textContent) {
+            try {
+              return JSON.parse(script.textContent) as T;
+            } catch {
+              // fall through
+            }
+          }
+
+          // 2. data-props attribute as JSON
+          const props = el.getAttribute("data-props");
+          if (props) {
+            try {
+              return JSON.parse(props) as T;
+            } catch {
+              // fall through
+            }
+          }
+
+          // 3. Collect all data-* attributes into a plain object
+          const result: Record<string, string> = {};
+          for (const attr of Array.from(el.attributes)) {
+            if (attr.name.startsWith("data-") && attr.name !== "data-props") {
+              const key = attr.name
+                .slice(5)
+                .replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+              result[key] = attr.value;
+            }
+          }
+          return result as T;
         },
       };
 

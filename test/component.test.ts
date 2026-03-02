@@ -190,3 +190,93 @@ describe("defineComponent", () => {
     expect(tornDown).toBe(true);
   });
 });
+
+describe("ctx.data", () => {
+  it("reads data from <script type=application/json>", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `
+      <div data-w>
+        <script type="application/json">{"columns":["a","b"],"rows":[1,2]}</script>
+      </div>
+    `;
+
+    let received: unknown;
+
+    const widget = defineComponent({}, (ctx) => {
+      received = ctx.data();
+    });
+
+    enhance("[data-w]", widget(), { root });
+    expect(received).toEqual({ columns: ["a", "b"], rows: [1, 2] });
+  });
+
+  it("reads data from data-props attribute", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<div data-w data-props='{"endpoint":"/api","limit":50}'></div>`;
+
+    let received: unknown;
+
+    const widget = defineComponent({}, (ctx) => {
+      received = ctx.data();
+    });
+
+    enhance("[data-w]", widget(), { root });
+    expect(received).toEqual({ endpoint: "/api", limit: 50 });
+  });
+
+  it("falls back to collecting data-* attributes", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<div data-w data-api-url="/api/items" data-page-size="25"></div>`;
+
+    let received: unknown;
+
+    const widget = defineComponent({}, (ctx) => {
+      received = ctx.data();
+    });
+
+    enhance("[data-w]", widget(), { root });
+    expect(received).toEqual({ w: "", apiUrl: "/api/items", pageSize: "25" });
+  });
+
+  it("prefers script tag over data-props", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `
+      <div data-w data-props='{"source":"attr"}'>
+        <script type="application/json">{"source":"script"}</script>
+      </div>
+    `;
+
+    let received: unknown;
+
+    const widget = defineComponent({}, (ctx) => {
+      received = ctx.data();
+    });
+
+    enhance("[data-w]", widget(), { root });
+    expect(received).toEqual({ source: "script" });
+  });
+
+  it("supports typed data retrieval", () => {
+    interface TableConfig {
+      columns: string[];
+      pageSize: number;
+    }
+
+    const root = document.createElement("div");
+    root.innerHTML = `
+      <div data-w>
+        <script type="application/json">{"columns":["name","age"],"pageSize":10}</script>
+      </div>
+    `;
+
+    let config: TableConfig | null = null;
+
+    const widget = defineComponent({}, (ctx) => {
+      config = ctx.data<TableConfig>();
+    });
+
+    enhance("[data-w]", widget(), { root });
+    expect(config!.columns).toEqual(["name", "age"]);
+    expect(config!.pageSize).toBe(10);
+  });
+});
