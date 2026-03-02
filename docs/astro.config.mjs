@@ -32,6 +32,7 @@ export default defineConfig({
             { label: "Components", slug: "reference/components" },
             { label: "Store", slug: "reference/store" },
             { label: "Router", slug: "reference/router" },
+            { label: "Logger", slug: "reference/logger" },
           ],
         },
       ],

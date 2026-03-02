@@ -14,6 +14,7 @@ export { animate } from "./components/animate.js";
 
 // Utilities
 export { queryAll, setAria, uid } from "./utils/dom.js";
+export { createLogger } from "./utils/logger.js";
 
 // Types
 export type {
@@ -32,3 +33,4 @@ export type { TabsOptions } from "./components/tabs.js";
 export type { AccordionOptions } from "./components/accordion.js";
 export type { FormOptions } from "./components/form.js";
 export type { AnimateOptions } from "./components/animate.js";
+export type { LogLevel, LoggerOptions, Logger } from "./utils/logger.js";
