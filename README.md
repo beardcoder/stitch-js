@@ -130,6 +130,7 @@ Every setup function receives a `ctx` with these methods:
 | `ctx.uid(prefix?)` | Generate a unique ID |
 | `ctx.onDestroy(fn)` | Register cleanup callback |
 | `ctx.emit(name, detail?)` | Dispatch a CustomEvent from root |
+| `ctx.sync(store, listener)` | Subscribe to a store (auto-cleanup on destroy) |
 | `ctx.data<T>()` | Read structured data from HTML (see below) |
 
 The setup function can also return a cleanup function directly:
@@ -278,6 +279,92 @@ const counter = defineComponent({ start: 0 }, (ctx) => {
 
 enhance("[data-counter]", counter());
 ```
+
+### `ctx.sync(store, listener)` — Sync a store with a component
+
+Subscribe to a store inside a component with automatic cleanup on destroy.
+The listener fires immediately with the current value and re-fires on every change.
+
+```ts
+import { defineComponent, enhance, createStore } from "stitch-js";
+
+const count = createStore(0);
+
+const display = defineComponent({}, (ctx) => {
+  ctx.sync(count, (n) => {
+    ctx.el.textContent = String(n);
+  });
+});
+
+enhance("[data-display]", display());
+count.set(5); // all [data-display] elements update to "5"
+```
+
+### `persistedStore(key, initial, options?)`
+
+A reactive store that persists its value to `localStorage` (or `sessionStorage`)
+and syncs across browser tabs via the `storage` event. It implements the same
+`Store` interface, so it works with `effect`, `computed`, and `ctx.sync`.
+
+```ts
+import { persistedStore, effect } from "stitch-js";
+
+const theme = persistedStore("theme", "light");
+
+theme.get();        // reads from localStorage, or falls back to "light"
+theme.set("dark");  // updates localStorage + notifies subscribers
+
+// Works with effect, computed, ctx.sync — just like createStore
+effect([theme], (value) => {
+  document.documentElement.dataset.theme = value;
+});
+```
+
+**Options:**
+
+| Option | Default | Description |
+|---|---|---|
+| `storage` | `localStorage` | Storage backend (`localStorage` or `sessionStorage`) |
+| `serialize` | `JSON.stringify` | Custom value → string serializer |
+| `deserialize` | `JSON.parse` | Custom string → value deserializer |
+
+---
+
+## Router
+
+A simple hash-based client-side router. Exposes a store-compatible interface
+so it works with `effect`, `computed`, and `ctx.sync`.
+
+### `createRouter(patterns?)`
+
+```ts
+import { createRouter, effect } from "stitch-js";
+
+const router = createRouter(["", "about", "users/:id"]);
+
+effect([router], (route) => {
+  console.log(route.path, route.params);
+});
+
+router.push("users/42"); // logs "users/42" { id: "42" }
+```
+
+**Route state:**
+
+| Property | Type | Description |
+|---|---|---|
+| `path` | `string` | The full hash path (without the leading `#`) |
+| `params` | `Record<string, string>` | Named params extracted from the pattern |
+| `pattern` | `string` | The matched pattern, or `""` if none matched |
+
+**Methods:**
+
+| Method | Description |
+|---|---|
+| `router.get()` | Get the current route state |
+| `router.subscribe(fn)` | Subscribe to route changes |
+| `router.push(path)` | Navigate to a hash path |
+| `router.destroy()` | Stop listening to hash changes |
 
 ---
 
