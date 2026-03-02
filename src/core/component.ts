@@ -1,4 +1,5 @@
 import type { ComponentFactory, ComponentInstance, CleanupFn } from "../utils/types.js";
+import type { Store, Listener } from "./store.js";
 import { queryAll, setAria, uid } from "../utils/dom.js";
 
 /**
@@ -55,6 +56,13 @@ export interface ComponentContext<O> {
 
   /** Emit a custom event from the root element. */
   emit(name: string, detail?: unknown): void;
+
+  /**
+   * Subscribe to a store and auto-cleanup on destroy.
+   * The listener fires immediately with the current value and
+   * re-fires whenever the store changes.
+   */
+  sync<T>(store: Store<T>, listener: Listener<T>): void;
 
   /**
    * Read structured data from the HTML.
@@ -196,6 +204,12 @@ export function defineComponent<O extends object = Record<string, never>>(
 
         emit(name: string, detail?: unknown) {
           el.dispatchEvent(new CustomEvent(name, { detail, bubbles: true }));
+        },
+
+        sync<T>(store: Store<T>, listener: Listener<T>) {
+          listener(store.get(), store.get());
+          const unsub = store.subscribe(listener);
+          cleanups.push(unsub);
         },
 
         data<T = Record<string, unknown>>(): T {
