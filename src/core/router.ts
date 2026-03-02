@@ -107,7 +107,11 @@ export function createRouter(
     if (!hash) return map;
     for (const part of hash.split("&")) {
       const eq = part.indexOf("=");
-      if (eq !== -1) map.set(part.slice(0, eq), part.slice(eq + 1));
+      if (eq !== -1)
+        map.set(
+          decodeURIComponent(part.slice(0, eq)),
+          decodeURIComponent(part.slice(eq + 1)),
+        );
     }
     return map;
   }
@@ -154,7 +158,10 @@ export function createRouter(
           const map = parseKeyedHash(rawHash());
           map.set(key, path);
           const parts: string[] = [];
-          for (const [k, v] of map) parts.push(`${k}=${v}`);
+          for (const [k, v] of map)
+            parts.push(
+              `${encodeURIComponent(k)}=${encodeURIComponent(v)}`,
+            );
           globalThis.location.hash = parts.join("&");
         } else {
           globalThis.location.hash = path;
