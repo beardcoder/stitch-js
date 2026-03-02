@@ -1,28 +1,19 @@
-import type { ComponentFactory, ComponentInstance } from "../utils/types.js";
+import { defineComponent } from "../core/component.js";
 
 export interface FormOptions {
   /** Custom fetch options merged into the request. */
-  fetchOptions?: RequestInit;
-  /**
-   * Called before the request is sent. Return `false` to cancel.
-   * Receives the form element and the `FormData`.
-   */
-  onBefore?: (el: HTMLFormElement, data: FormData) => boolean | void;
-  /** Called on successful response. */
-  onSuccess?: (el: HTMLFormElement, response: Response) => void;
-  /** Called on network or HTTP error. */
-  onError?: (el: HTMLFormElement, error: unknown) => void;
-  /** Called after the request completes (success or error). */
-  onComplete?: (el: HTMLFormElement) => void;
+  fetchOptions: RequestInit;
   /** CSS class added to the form while submitting. Default: `is-submitting` */
-  submittingClass?: string;
+  submittingClass: string;
+  /** Called before the request is sent. Return `false` to cancel. */
+  onBefore: ((el: HTMLFormElement, data: FormData) => boolean | void) | null;
+  /** Called on successful response. */
+  onSuccess: ((el: HTMLFormElement, response: Response) => void) | null;
+  /** Called on network or HTTP error. */
+  onError: ((el: HTMLFormElement, error: unknown) => void) | null;
+  /** Called after the request completes (success or error). */
+  onComplete: ((el: HTMLFormElement) => void) | null;
 }
-
-const DEFAULTS: Required<
-  Pick<FormOptions, "submittingClass">
-> = {
-  submittingClass: "is-submitting",
-};
 
 /**
  * Progressive form enhancement: intercepts submit, sends via `fetch`,
@@ -36,76 +27,67 @@ const DEFAULTS: Required<
  * </form>
  * ```
  */
-export function form(opts?: FormOptions): ComponentFactory<FormOptions> {
-  const merged = { ...DEFAULTS, ...opts };
+export const form = defineComponent<FormOptions>(
+  {
+    fetchOptions: {},
+    submittingClass: "is-submitting",
+    onBefore: null,
+    onSuccess: null,
+    onError: null,
+    onComplete: null,
+  },
+  (ctx) => {
+    const formEl = ctx.el as HTMLFormElement;
+    if (formEl.tagName !== "FORM") return;
 
-  return (el: HTMLElement): ComponentInstance => {
-    const formEl = el as HTMLFormElement;
-    if (formEl.tagName !== "FORM") {
-      return { destroy() {} };
-    }
-
-    const config = { ...merged };
+    const { options: o } = ctx;
     const controller = new AbortController();
+    ctx.onDestroy(() => controller.abort());
 
-    async function onSubmit(e: SubmitEvent) {
+    ctx.on("submit", (e) => {
       e.preventDefault();
 
-      // Native validation
       if (!formEl.checkValidity()) {
         formEl.reportValidity();
         return;
       }
 
       const data = new FormData(formEl);
-
-      if (config.onBefore?.(formEl, data) === false) return;
+      if (o.onBefore?.(formEl, data) === false) return;
 
       const action = formEl.action;
       const method = (formEl.method || "POST").toUpperCase();
 
-      formEl.classList.add(config.submittingClass);
+      formEl.classList.add(o.submittingClass);
       const submitter = formEl.querySelector<HTMLButtonElement>(
         '[type="submit"]',
       );
       if (submitter) submitter.disabled = true;
 
-      try {
-        const fetchOpts: RequestInit = {
-          method,
-          signal: controller.signal,
-          ...config.fetchOptions,
-        };
-
-        if (method !== "GET" && method !== "HEAD") {
-          fetchOpts.body = data;
-        }
-
-        const response = await fetch(action, fetchOpts);
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-
-        config.onSuccess?.(formEl, response);
-      } catch (err) {
-        if ((err as Error).name !== "AbortError") {
-          config.onError?.(formEl, err);
-        }
-      } finally {
-        formEl.classList.remove(config.submittingClass);
-        if (submitter) submitter.disabled = false;
-        config.onComplete?.(formEl);
+      const fetchOpts: RequestInit = {
+        method,
+        signal: controller.signal,
+        ...o.fetchOptions,
+      };
+      if (method !== "GET" && method !== "HEAD") {
+        fetchOpts.body = data;
       }
-    }
 
-    formEl.addEventListener("submit", onSubmit);
-
-    return {
-      destroy() {
-        controller.abort();
-        formEl.removeEventListener("submit", onSubmit);
-      },
-    };
-  };
-}
+      fetch(action, fetchOpts)
+        .then((response) => {
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          o.onSuccess?.(formEl, response);
+        })
+        .catch((err: unknown) => {
+          if ((err as Error).name !== "AbortError") {
+            o.onError?.(formEl, err);
+          }
+        })
+        .finally(() => {
+          formEl.classList.remove(o.submittingClass);
+          if (submitter) submitter.disabled = false;
+          o.onComplete?.(formEl);
+        });
+    });
+  },
+);

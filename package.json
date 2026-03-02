@@ -15,6 +15,10 @@
       "types": "./dist/core/index.d.ts",
       "import": "./dist/core/index.js"
     },
+    "./store": {
+      "types": "./dist/core/store.d.ts",
+      "import": "./dist/core/store.js"
+    },
     "./components/tabs": {
       "types": "./dist/components/tabs.d.ts",
       "import": "./dist/components/tabs.js"

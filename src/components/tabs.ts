@@ -1,23 +1,15 @@
-import type { ComponentFactory, ComponentInstance } from "../utils/types.js";
-import { queryAll, setAria, uid } from "../utils/dom.js";
+import { defineComponent } from "../core/component.js";
 
 export interface TabsOptions {
   /** Selector for the tab list container. Default: `[data-tab-list]` */
-  listSelector?: string;
+  listSelector: string;
   /** Selector for individual tab triggers. Default: `[data-tab]` */
-  tabSelector?: string;
+  tabSelector: string;
   /** Selector for tab panels. Default: `[data-tab-panel]` */
-  panelSelector?: string;
+  panelSelector: string;
   /** Index of the initially active tab (0-based). Default: `0` */
-  defaultIndex?: number;
+  defaultIndex: number;
 }
-
-const DEFAULTS: Required<TabsOptions> = {
-  listSelector: "[data-tab-list]",
-  tabSelector: "[data-tab]",
-  panelSelector: "[data-tab-panel]",
-  defaultIndex: 0,
-};
 
 /**
  * Accessible tabs component.
@@ -34,70 +26,66 @@ const DEFAULTS: Required<TabsOptions> = {
  * </div>
  * ```
  */
-export function tabs(opts?: TabsOptions): ComponentFactory<TabsOptions> {
-  const merged = { ...DEFAULTS, ...opts };
+export const tabs = defineComponent<TabsOptions>(
+  {
+    listSelector: "[data-tab-list]",
+    tabSelector: "[data-tab]",
+    panelSelector: "[data-tab-panel]",
+    defaultIndex: 0,
+  },
+  (ctx) => {
+    const { options: o } = ctx;
+    const tabList = ctx.query(o.listSelector);
+    const tabEls = ctx.queryAll(o.tabSelector);
+    const panelEls = ctx.queryAll(o.panelSelector);
 
-  return (el: HTMLElement): ComponentInstance => {
-    const config = { ...merged };
-    const tabList = el.querySelector<HTMLElement>(config.listSelector);
-    const tabEls = queryAll(config.tabSelector, el);
-    const panelEls = queryAll(config.panelSelector, el);
+    if (!tabList || tabEls.length === 0 || panelEls.length === 0) return;
 
-    if (!tabList || tabEls.length === 0 || panelEls.length === 0) {
-      return { destroy() {} };
-    }
-
-    const groupId = uid("tabs");
+    const groupId = ctx.uid("tabs");
 
     // Set ARIA roles
     tabList.setAttribute("role", "tablist");
-
     tabEls.forEach((tab, i) => {
       const tabId = `${groupId}-tab-${i}`;
       const panelId = `${groupId}-panel-${i}`;
-      const panel = panelEls[i];
-
       tab.setAttribute("role", "tab");
       tab.id = tabId;
-      setAria(tab, { controls: panelId });
+      ctx.aria(tab, { controls: panelId });
 
+      const panel = panelEls[i];
       if (panel) {
         panel.setAttribute("role", "tabpanel");
         panel.id = panelId;
-        setAria(panel, { labelledby: tabId });
+        ctx.aria(panel, { labelledby: tabId });
       }
     });
 
-    let activeIndex = config.defaultIndex;
+    let activeIndex = o.defaultIndex;
 
     function activate(index: number) {
       if (index < 0 || index >= tabEls.length) return;
       activeIndex = index;
-
       tabEls.forEach((tab, i) => {
-        const isActive = i === index;
-        tab.setAttribute("tabindex", isActive ? "0" : "-1");
-        setAria(tab, { selected: isActive });
+        const active = i === index;
+        tab.setAttribute("tabindex", active ? "0" : "-1");
+        ctx.aria(tab, { selected: active });
       });
-
       panelEls.forEach((panel, i) => {
         panel.hidden = i !== index;
       });
     }
 
-    function onTabClick(e: Event) {
-      const target = (e.target as HTMLElement).closest<HTMLElement>(
-        config.tabSelector,
-      );
-      if (!target) return;
-      const index = tabEls.indexOf(target);
+    activate(activeIndex);
+
+    ctx.on("click", o.tabSelector, (_e, delegate) => {
+      const index = tabEls.indexOf(delegate);
       if (index !== -1) {
         activate(index);
-        target.focus();
+        delegate.focus();
       }
-    }
+    });
 
-    function onKeyDown(e: KeyboardEvent) {
+    ctx.on("keydown", o.tabSelector, (e, _delegate) => {
       let next = activeIndex;
       if (e.key === "ArrowRight") next = (activeIndex + 1) % tabEls.length;
       else if (e.key === "ArrowLeft")
@@ -109,18 +97,6 @@ export function tabs(opts?: TabsOptions): ComponentFactory<TabsOptions> {
       e.preventDefault();
       activate(next);
       tabEls[next].focus();
-    }
-
-    // Initialize
-    activate(activeIndex);
-    tabList.addEventListener("click", onTabClick);
-    tabList.addEventListener("keydown", onKeyDown);
-
-    return {
-      destroy() {
-        tabList.removeEventListener("click", onTabClick);
-        tabList.removeEventListener("keydown", onKeyDown);
-      },
-    };
-  };
-}
+    });
+  },
+);

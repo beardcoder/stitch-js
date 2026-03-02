@@ -2,13 +2,15 @@
 
 A tiny, composable progressive enhancement framework for the browser.
 
-Enhance existing HTML with interactive behavior — tabs, accordions, forms, animations — without a virtual DOM, SPA framework, or build step requirement.
+Enhance existing HTML with interactive behavior — without a virtual DOM, SPA framework, or build step requirement.
 
 ## Features
 
 - **Progressive enhancement first** — HTML works without JS
+- **Generic component model** — `defineComponent` gives you scoped queries, delegated events, attribute parsing, and auto-cleanup
+- **Reactive store** — `createStore`, `computed`, and `effect` for state management
 - **Tree-shakeable** — import only what you use
-- **Accessible** — ARIA roles and keyboard navigation built in
+- **Accessible** — ARIA-aware utilities built in
 - **Tiny** — minimal runtime, no dependencies
 - **TypeScript** — strict types and great DX
 - **Composable** — stack multiple behaviors on one element
@@ -40,45 +42,179 @@ npm install stitch-js
 </script>
 ```
 
-## API
+## Core API
 
 ### `enhance(selector, factory, options?)`
 
-Find all elements matching `selector` and attach the component `factory` to each.
+Find all elements matching `selector` and attach the component `factory` to each. Idempotent — calling twice on the same element is a no-op.
 
 ```ts
 import { enhance } from "stitch-js";
 import { accordion } from "stitch-js/components/accordion";
 
 const instances = enhance("[data-accordion]", accordion({ multiple: true }));
-
-// Tear down later
 instances.forEach((i) => i.destroy());
 ```
 
-Returns an array of `ComponentInstance` objects with a `destroy()` method.
-
 **Options:**
 - `root` — scope the query to a subtree (default: `document`)
-- `options` — override the default options passed to the factory
+- `options` — override the factory options
 
 ### `destroyAll(selector, factory?, root?)`
 
-Destroy all enhanced instances on matching elements. Pass a specific `factory` to only remove that behavior.
+Destroy all enhanced instances on matching elements. Pass a `factory` to only remove that behavior.
 
-### `register(selector, factory)` / `init()` / `autoInit()`
+### `register` / `init` / `autoInit`
 
-For declarative, auto-initialization workflows:
+Declarative auto-initialization:
 
 ```ts
 import { register, autoInit, tabs, accordion } from "stitch-js";
 
 register("[data-tabs]", tabs());
 register("[data-accordion]", accordion());
-autoInit(); // runs on DOMContentLoaded (or immediately if already loaded)
+autoInit(); // runs on DOMContentLoaded
 ```
 
-## Components
+---
+
+## `defineComponent` — Generic Component Builder
+
+The core primitive for creating components. Provides a scoped `ComponentContext` with DOM queries, delegated event handling, attribute parsing, and automatic cleanup.
+
+```ts
+import { defineComponent, enhance } from "stitch-js";
+
+const toggle = defineComponent(
+  { activeClass: "is-active" },   // typed defaults
+  (ctx) => {
+    ctx.on("click", () => {
+      ctx.el.classList.toggle(ctx.options.activeClass);
+    });
+  },
+);
+
+enhance("[data-toggle]", toggle());
+enhance("[data-toggle]", toggle({ activeClass: "open" }));
+```
+
+### ComponentContext
+
+Every setup function receives a `ctx` with these methods:
+
+| Method | Description |
+|---|---|
+| `ctx.el` | The root HTMLElement |
+| `ctx.options` | Resolved options (defaults + overrides) |
+| `ctx.query(selector)` | `querySelector` scoped to root |
+| `ctx.queryAll(selector)` | `querySelectorAll` scoped to root |
+| `ctx.attr(name, fallback?)` | Read a `data-*` attribute |
+| `ctx.attrJson(name)` | Read + JSON.parse a `data-*` attribute |
+| `ctx.on(event, handler)` | Attach event listener (auto-cleanup) |
+| `ctx.on(event, selector, handler)` | Delegated event listener (auto-cleanup) |
+| `ctx.aria(el, attrs)` | Set `aria-*` attributes |
+| `ctx.uid(prefix?)` | Generate a unique ID |
+| `ctx.onDestroy(fn)` | Register cleanup callback |
+| `ctx.emit(name, detail?)` | Dispatch a CustomEvent from root |
+
+The setup function can also return a cleanup function directly:
+
+```ts
+const counter = defineComponent({ start: 0 }, (ctx) => {
+  const interval = setInterval(() => { /* ... */ }, 1000);
+  return () => clearInterval(interval);
+});
+```
+
+---
+
+## Reactive Store
+
+A minimal, dependency-free reactive primitive.
+
+### `createStore(initial)`
+
+```ts
+import { createStore } from "stitch-js";
+
+const count = createStore(0);
+
+count.get();            // 0
+count.set(1);           // updates + notifies
+count.update(n => n + 1); // transform + notify
+
+const unsub = count.subscribe((value, prev) => {
+  console.log(`${prev} → ${value}`);
+});
+unsub(); // stop listening
+```
+
+### `computed(sources, derive)`
+
+Derived read-only store that auto-updates when sources change.
+
+```ts
+import { createStore, computed } from "stitch-js";
+
+const firstName = createStore("Jane");
+const lastName = createStore("Doe");
+
+const fullName = computed(
+  [firstName, lastName],
+  (first, last) => `${first} ${last}`,
+);
+
+fullName.get(); // "Jane Doe"
+firstName.set("John");
+fullName.get(); // "John Doe"
+```
+
+### `effect(sources, fn)`
+
+Run a side-effect when sources change. Runs immediately, re-runs on change, and supports cleanup.
+
+```ts
+import { createStore, effect } from "stitch-js";
+
+const theme = createStore("light");
+
+const stop = effect([theme], (value) => {
+  document.documentElement.dataset.theme = value;
+  return () => {
+    // cleanup before re-run or on stop
+  };
+});
+
+theme.set("dark"); // side-effect fires
+stop();            // tear down
+```
+
+### Combining store with components
+
+```ts
+import { defineComponent, enhance, createStore, effect } from "stitch-js";
+
+const counter = defineComponent({ start: 0 }, (ctx) => {
+  const count = createStore(ctx.options.start);
+  const display = ctx.query("[data-count]");
+
+  const stopEffect = effect([count], (n) => {
+    if (display) display.textContent = String(n);
+  });
+
+  ctx.on("click", "[data-increment]", () => count.update(n => n + 1));
+  ctx.on("click", "[data-decrement]", () => count.update(n => n - 1));
+  ctx.onDestroy(stopEffect);
+});
+
+enhance("[data-counter]", counter());
+```
+
+---
+
+## Example Components
+
+The built-in components are examples built on `defineComponent`. Use them directly or as reference for your own.
 
 ### Tabs
 
@@ -94,12 +230,10 @@ autoInit(); // runs on DOMContentLoaded (or immediately if already loaded)
 ```
 
 ```ts
-import { enhance, tabs } from "stitch-js";
 enhance("[data-tabs]", tabs({ defaultIndex: 0 }));
 ```
 
 **Options:** `listSelector`, `tabSelector`, `panelSelector`, `defaultIndex`
-
 Keyboard: Arrow Left/Right, Home, End.
 
 ### Accordion
@@ -108,27 +242,19 @@ Keyboard: Arrow Left/Right, Home, End.
 <div data-accordion>
   <div data-accordion-item>
     <button data-accordion-trigger>Section 1</button>
-    <div data-accordion-content>Content 1</div>
-  </div>
-  <div data-accordion-item>
-    <button data-accordion-trigger>Section 2</button>
-    <div data-accordion-content>Content 2</div>
+    <div data-accordion-content>Content</div>
   </div>
 </div>
 ```
 
 ```ts
-import { enhance, accordion } from "stitch-js";
 enhance("[data-accordion]", accordion({ multiple: false }));
 ```
 
 **Options:** `itemSelector`, `triggerSelector`, `contentSelector`, `multiple`
-
 Keyboard: Arrow Up/Down, Home, End.
 
 ### Form
-
-Progressive AJAX form submission with fallback to native submit.
 
 ```html
 <form data-form action="/api/contact" method="post">
@@ -138,73 +264,62 @@ Progressive AJAX form submission with fallback to native submit.
 ```
 
 ```ts
-import { enhance, form } from "stitch-js";
-enhance(
-  "[data-form]",
-  form({
-    onSuccess: (el, res) => console.log("Sent!", res),
-    onError: (el, err) => console.error("Failed", err),
-  }),
-);
+enhance("[data-form]", form({
+  onSuccess: (el, res) => console.log("Sent!", res),
+  onError: (el, err) => console.error("Failed", err),
+}));
 ```
 
-**Options:** `fetchOptions`, `onBefore`, `onSuccess`, `onError`, `onComplete`, `submittingClass`
-
 ### Animate
-
-CSS-class-based scroll animation via IntersectionObserver.
 
 ```html
 <div data-animate class="fade-in">Appears on scroll</div>
 ```
 
 ```css
-.fade-in {
-  opacity: 0;
-  transition: opacity 0.4s ease;
-}
-.fade-in.is-visible {
-  opacity: 1;
-}
+.fade-in { opacity: 0; transition: opacity 0.4s ease; }
+.fade-in.is-visible { opacity: 1; }
 ```
 
 ```ts
-import { enhance, animate } from "stitch-js";
-enhance("[data-animate]", animate({ once: true, threshold: 0.1 }));
+enhance("[data-animate]", animate({ once: true }));
 ```
 
-**Options:** `activeClass`, `threshold`, `rootMargin`, `once`
+---
 
-## Custom Components
+## Writing Custom Components
 
-Write your own component factory:
+Use `defineComponent` for scoped DOM access, delegated events, and auto-cleanup:
+
+```ts
+import { defineComponent, enhance } from "stitch-js";
+
+const tooltip = defineComponent(
+  { position: "top" as "top" | "bottom" },
+  (ctx) => {
+    const tip = document.createElement("span");
+    tip.textContent = ctx.attr("tooltip") ?? "";
+    tip.className = `tooltip tooltip--${ctx.options.position}`;
+
+    ctx.on("mouseenter", () => ctx.el.appendChild(tip));
+    ctx.on("mouseleave", () => tip.remove());
+    ctx.onDestroy(() => tip.remove());
+  },
+);
+
+enhance("[data-tooltip]", tooltip());
+enhance("[data-tooltip-bottom]", tooltip({ position: "bottom" }));
+```
+
+Or use the low-level `ComponentFactory` type for maximum control:
 
 ```ts
 import type { ComponentFactory } from "stitch-js";
 
-interface TooltipOptions {
-  position?: "top" | "bottom";
-}
-
-function tooltip(opts?: TooltipOptions): ComponentFactory<TooltipOptions> {
+function myBehavior(): ComponentFactory {
   return (el) => {
-    const tip = document.createElement("span");
-    tip.textContent = el.getAttribute("data-tooltip") ?? "";
-    tip.className = `tooltip tooltip--${opts?.position ?? "top"}`;
-
-    const show = () => el.appendChild(tip);
-    const hide = () => tip.remove();
-
-    el.addEventListener("mouseenter", show);
-    el.addEventListener("mouseleave", hide);
-
-    return {
-      destroy() {
-        el.removeEventListener("mouseenter", show);
-        el.removeEventListener("mouseleave", hide);
-        tip.remove();
-      },
-    };
+    // attach behavior...
+    return { destroy() { /* cleanup */ } };
   };
 }
 ```

@@ -1,23 +1,15 @@
-import type { ComponentFactory, ComponentInstance } from "../utils/types.js";
-import { queryAll, setAria, uid } from "../utils/dom.js";
+import { defineComponent } from "../core/component.js";
 
 export interface AccordionOptions {
   /** Selector for accordion item containers. Default: `[data-accordion-item]` */
-  itemSelector?: string;
+  itemSelector: string;
   /** Selector for the trigger button within an item. Default: `[data-accordion-trigger]` */
-  triggerSelector?: string;
+  triggerSelector: string;
   /** Selector for the collapsible content within an item. Default: `[data-accordion-content]` */
-  contentSelector?: string;
+  contentSelector: string;
   /** Allow multiple panels open simultaneously. Default: `false` */
-  multiple?: boolean;
+  multiple: boolean;
 }
-
-const DEFAULTS: Required<AccordionOptions> = {
-  itemSelector: "[data-accordion-item]",
-  triggerSelector: "[data-accordion-trigger]",
-  contentSelector: "[data-accordion-content]",
-  multiple: false,
-};
 
 /**
  * Accessible accordion component.
@@ -29,29 +21,27 @@ const DEFAULTS: Required<AccordionOptions> = {
  *     <button data-accordion-trigger>Section 1</button>
  *     <div data-accordion-content>Content 1</div>
  *   </div>
- *   <div data-accordion-item>
- *     <button data-accordion-trigger>Section 2</button>
- *     <div data-accordion-content>Content 2</div>
- *   </div>
  * </div>
  * ```
  */
-export function accordion(
-  opts?: AccordionOptions,
-): ComponentFactory<AccordionOptions> {
-  const merged = { ...DEFAULTS, ...opts };
-
-  return (el: HTMLElement): ComponentInstance => {
-    const config = { ...merged };
-    const items = queryAll(config.itemSelector, el);
-    const groupId = uid("accordion");
+export const accordion = defineComponent<AccordionOptions>(
+  {
+    itemSelector: "[data-accordion-item]",
+    triggerSelector: "[data-accordion-trigger]",
+    contentSelector: "[data-accordion-content]",
+    multiple: false,
+  },
+  (ctx) => {
+    const { options: o } = ctx;
+    const items = ctx.queryAll(o.itemSelector);
+    const groupId = ctx.uid("accordion");
 
     const triggers: HTMLElement[] = [];
     const contents: HTMLElement[] = [];
 
     items.forEach((item, i) => {
-      const trigger = item.querySelector<HTMLElement>(config.triggerSelector);
-      const content = item.querySelector<HTMLElement>(config.contentSelector);
+      const trigger = item.querySelector<HTMLElement>(o.triggerSelector);
+      const content = item.querySelector<HTMLElement>(o.contentSelector);
       if (!trigger || !content) return;
 
       const triggerId = `${groupId}-trigger-${i}`;
@@ -59,8 +49,8 @@ export function accordion(
 
       trigger.id = triggerId;
       content.id = contentId;
-      setAria(trigger, { expanded: false, controls: contentId });
-      setAria(content, { labelledby: triggerId });
+      ctx.aria(trigger, { expanded: false, controls: contentId });
+      ctx.aria(content, { labelledby: triggerId });
       content.setAttribute("role", "region");
       content.hidden = true;
 
@@ -75,30 +65,24 @@ export function accordion(
 
       const isOpen = trigger.getAttribute("aria-expanded") === "true";
 
-      if (!config.multiple && !isOpen) {
-        // Close all others
+      if (!o.multiple && !isOpen) {
         triggers.forEach((t, i) => {
-          setAria(t, { expanded: false });
+          ctx.aria(t, { expanded: false });
           contents[i].hidden = true;
         });
       }
 
-      setAria(trigger, { expanded: !isOpen });
+      ctx.aria(trigger, { expanded: !isOpen });
       content.hidden = isOpen;
     }
 
-    function onClick(e: Event) {
-      const target = (e.target as HTMLElement).closest<HTMLElement>(
-        config.triggerSelector,
-      );
-      if (!target) return;
-      const index = triggers.indexOf(target);
+    ctx.on("click", o.triggerSelector, (_e, delegate) => {
+      const index = triggers.indexOf(delegate);
       if (index !== -1) toggle(index);
-    }
+    });
 
-    function onKeyDown(e: KeyboardEvent) {
-      const target = e.target as HTMLElement;
-      const index = triggers.indexOf(target);
+    ctx.on("keydown", o.triggerSelector, (e, delegate) => {
+      const index = triggers.indexOf(delegate);
       if (index === -1) return;
 
       let next = index;
@@ -111,16 +95,6 @@ export function accordion(
 
       e.preventDefault();
       triggers[next].focus();
-    }
-
-    el.addEventListener("click", onClick);
-    el.addEventListener("keydown", onKeyDown);
-
-    return {
-      destroy() {
-        el.removeEventListener("click", onClick);
-        el.removeEventListener("keydown", onKeyDown);
-      },
-    };
-  };
-}
+    });
+  },
+);

@@ -8,6 +8,7 @@ await Bun.build({
   entrypoints: [
     "src/index.ts",
     "src/core/index.ts",
+    "src/core/store.ts",
     "src/components/tabs.ts",
     "src/components/accordion.ts",
     "src/components/form.ts",
