@@ -19,6 +19,14 @@
       "types": "./dist/core/store.d.ts",
       "import": "./dist/core/store.js"
     },
+    "./persisted": {
+      "types": "./dist/core/persisted.d.ts",
+      "import": "./dist/core/persisted.js"
+    },
+    "./router": {
+      "types": "./dist/core/router.d.ts",
+      "import": "./dist/core/router.js"
+    },
     "./components/tabs": {
       "types": "./dist/components/tabs.d.ts",
       "import": "./dist/components/tabs.js"

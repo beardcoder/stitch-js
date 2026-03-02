@@ -9,6 +9,8 @@ await Bun.build({
     "src/index.ts",
     "src/core/index.ts",
     "src/core/store.ts",
+    "src/core/persisted.ts",
+    "src/core/router.ts",
     "src/components/tabs.ts",
     "src/components/accordion.ts",
     "src/components/form.ts",
