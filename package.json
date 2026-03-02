@@ -1,0 +1,60 @@
+{
+  "name": "stitch-js",
+  "version": "0.1.0",
+  "description": "A tiny, composable progressive enhancement framework for the browser",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.js"
+    },
+    "./components/tabs": {
+      "types": "./dist/components/tabs.d.ts",
+      "import": "./dist/components/tabs.js"
+    },
+    "./components/accordion": {
+      "types": "./dist/components/accordion.d.ts",
+      "import": "./dist/components/accordion.js"
+    },
+    "./components/form": {
+      "types": "./dist/components/form.d.ts",
+      "import": "./dist/components/form.js"
+    },
+    "./components/animate": {
+      "types": "./dist/components/animate.d.ts",
+      "import": "./dist/components/animate.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "bun run scripts/build.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "bun run build"
+  },
+  "keywords": [
+    "progressive-enhancement",
+    "vanilla-js",
+    "lightweight",
+    "accessibility",
+    "web-components",
+    "no-framework"
+  ],
+  "license": "MIT",
+  "sideEffects": false,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "linkedom": "^0.18.12",
+    "typescript": "^5.7.0"
+  }
+}

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>stitch-js Example</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; color: #1a1a1a; }
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.15rem; margin-top: 2.5rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.25rem; }
+
+    /* Tabs */
+    [data-tab-list] { display: flex; gap: 0; border-bottom: 2px solid #e0e0e0; }
+    [data-tab] { padding: 0.5rem 1rem; border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; font: inherit; }
+    [data-tab][aria-selected="true"] { border-bottom-color: #0066cc; color: #0066cc; font-weight: 600; }
+    [data-tab-panel] { padding: 1rem 0; }
+
+    /* Accordion */
+    [data-accordion-trigger] { display: block; width: 100%; text-align: left; padding: 0.75rem 0; border: none; border-bottom: 1px solid #e0e0e0; background: none; cursor: pointer; font: inherit; font-weight: 500; }
+    [data-accordion-trigger]::before { content: "▸ "; }
+    [data-accordion-trigger][aria-expanded="true"]::before { content: "▾ "; }
+    [data-accordion-content] { padding: 0.5rem 0 1rem; }
+
+    /* Form */
+    form[data-form] { display: flex; flex-direction: column; gap: 0.75rem; }
+    form[data-form] input { padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; font: inherit; }
+    form[data-form] button { padding: 0.5rem 1.5rem; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; font: inherit; }
+    form[data-form].is-submitting button { opacity: 0.5; cursor: wait; }
+
+    /* Animate */
+    .fade-up { opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; }
+    .fade-up.is-visible { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<h1>stitch-js — Example</h1>
+<p>A progressive enhancement demo. All content below is readable without JavaScript.</p>
+
+<h2>Tabs</h2>
+<div data-tabs>
+  <div data-tab-list>
+    <button data-tab>Overview</button>
+    <button data-tab>Features</button>
+    <button data-tab>Install</button>
+  </div>
+  <div data-tab-panel>
+    <p>stitch-js enhances your HTML with minimal, composable JavaScript behaviors.</p>
+  </div>
+  <div data-tab-panel>
+    <p>Tree-shakeable, accessible, tiny, TypeScript-first, no dependencies.</p>
+  </div>
+  <div data-tab-panel>
+    <p>Run <code>bun add stitch-js</code> or <code>npm install stitch-js</code>.</p>
+  </div>
+</div>
+
+<h2>Accordion</h2>
+<div data-accordion>
+  <div data-accordion-item>
+    <button data-accordion-trigger>What is progressive enhancement?</button>
+    <div data-accordion-content>
+      <p>A strategy where base content is accessible to everyone, and extra functionality layers on top for capable browsers.</p>
+    </div>
+  </div>
+  <div data-accordion-item>
+    <button data-accordion-trigger>Does this replace React?</button>
+    <div data-accordion-content>
+      <p>No. stitch-js is for enhancing server-rendered or static HTML. Use a full framework when you need complex client-side state.</p>
+    </div>
+  </div>
+  <div data-accordion-item>
+    <button data-accordion-trigger>How big is the bundle?</button>
+    <div data-accordion-content>
+      <p>The entire library is a few KB. Each component is independently importable and tree-shakeable.</p>
+    </div>
+  </div>
+</div>
+
+<h2>Form (AJAX)</h2>
+<form data-form action="/api/contact" method="post">
+  <input name="name" placeholder="Name" required />
+  <input name="email" type="email" placeholder="Email" required />
+  <button type="submit">Send</button>
+</form>
+<p id="form-status"></p>
+
+<h2>Scroll Animation</h2>
+<div data-animate class="fade-up" style="margin-top: 4rem;">
+  <p>This block fades in when it enters the viewport.</p>
+</div>
+<div data-animate class="fade-up" style="margin-top: 4rem;">
+  <p>And this one too.</p>
+</div>
+
+<script type="module">
+  // In a real project: import from "stitch-js"
+  // For this example, adjust the path to your built dist or use a dev server.
+  import { enhance, tabs, accordion, form, animate } from "../src/index.ts";
+
+  enhance("[data-tabs]", tabs());
+  enhance("[data-accordion]", accordion());
+  enhance("[data-animate]", animate());
+
+  enhance("[data-form]", form({
+    onSuccess: () => {
+      document.getElementById("form-status").textContent = "Sent successfully!";
+    },
+    onError: (_el, err) => {
+      document.getElementById("form-status").textContent = "Error: " + err;
+    },
+  }));
+</script>
+
+</body>
+</html>
