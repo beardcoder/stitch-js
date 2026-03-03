@@ -8,7 +8,7 @@ A minimal, dependency-free reactive primitive.
 ## `createStore(initial)`
 
 ```ts
-import { createStore } from "stitch-js";
+import { createStore } from "@beardcoder/stitch-js";
 
 const count = createStore(0);
 
@@ -27,7 +27,7 @@ unsub(); // stop listening
 Derived read-only store that auto-updates when sources change.
 
 ```ts
-import { createStore, computed } from "stitch-js";
+import { createStore, computed } from "@beardcoder/stitch-js";
 
 const firstName = createStore("Jane");
 const lastName = createStore("Doe");
@@ -47,7 +47,7 @@ fullName.get(); // "John Doe"
 Run a side-effect when sources change. Runs immediately, re-runs on change, and supports cleanup.
 
 ```ts
-import { createStore, effect } from "stitch-js";
+import { createStore, effect } from "@beardcoder/stitch-js";
 
 const theme = createStore("light");
 
@@ -65,7 +65,7 @@ stop();            // tear down
 ## Combining Store with Components
 
 ```ts
-import { defineComponent, enhance, createStore, effect } from "stitch-js";
+import { defineComponent, enhance, createStore, effect } from "@beardcoder/stitch-js";
 
 const counter = defineComponent({ start: 0 }, (ctx) => {
   const count = createStore(ctx.options.start);
@@ -88,7 +88,7 @@ enhance("[data-counter]", counter());
 Subscribe to a store inside a component with automatic cleanup on destroy. The listener fires immediately with the current value and re-fires on every change.
 
 ```ts
-import { defineComponent, enhance, createStore } from "stitch-js";
+import { defineComponent, enhance, createStore } from "@beardcoder/stitch-js";
 
 const count = createStore(0);
 
@@ -107,7 +107,7 @@ count.set(5); // all [data-display] elements update to "5"
 A reactive store that persists its value to `localStorage` (or `sessionStorage`) and syncs across browser tabs via the `storage` event. It implements the same `Store` interface, so it works with `effect`, `computed`, and `ctx.sync`.
 
 ```ts
-import { persistedStore, effect } from "stitch-js";
+import { persistedStore, effect } from "@beardcoder/stitch-js";
 
 const theme = persistedStore("theme", "light");
 

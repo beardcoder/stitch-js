@@ -8,7 +8,7 @@ description: Build your own components using defineComponent and the low-level C
 `defineComponent` is the core primitive for creating components. It provides a scoped `ComponentContext` with DOM queries, delegated event handling, attribute parsing, and automatic cleanup.
 
 ```ts
-import { defineComponent, enhance } from "stitch-js";
+import { defineComponent, enhance } from "@beardcoder/stitch-js";
 
 const toggle = defineComponent(
   { activeClass: "is-active" },   // typed defaults
@@ -90,7 +90,7 @@ Pass structured data from server-rendered HTML into your components. This is ess
 ```
 
 ```ts
-import { defineComponent, enhance } from "stitch-js";
+import { defineComponent, enhance } from "@beardcoder/stitch-js";
 
 // TanStack Table example
 const dataTable = defineComponent({}, (ctx) => {
@@ -112,7 +112,7 @@ enhance("[data-table]", dataTable());
 Here is a full custom component example:
 
 ```ts
-import { defineComponent, enhance } from "stitch-js";
+import { defineComponent, enhance } from "@beardcoder/stitch-js";
 
 const tooltip = defineComponent(
   { position: "top" as "top" | "bottom" },
@@ -136,7 +136,7 @@ enhance("[data-tooltip-bottom]", tooltip({ position: "bottom" }));
 For maximum control, use the `ComponentFactory` type directly:
 
 ```ts
-import type { ComponentFactory } from "stitch-js";
+import type { ComponentFactory } from "@beardcoder/stitch-js";
 
 function myBehavior(): ComponentFactory {
   return (el) => {

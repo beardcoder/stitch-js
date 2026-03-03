@@ -22,8 +22,8 @@ const instances = new WeakMap<HTMLElement, Map<AnyFactory, ComponentInstance>>()
  *
  * @example
  * ```ts
- * import { enhance } from "stitch-js";
- * import { tabs } from "stitch-js/components/tabs";
+ * import { enhance } from "@beardcoder/stitch-js";
+ * import { tabs } from "@beardcoder/stitch-js/components/tabs";
  *
  * const handles = enhance("[data-tabs]", tabs());
  * // Later: handles.forEach(h => h.destroy());

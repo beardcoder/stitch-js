@@ -1,5 +1,5 @@
 {
-  "name": "stitch-js",
+  "name": "@beardcoder/stitch-js",
   "version": "1.0.1",
   "description": "A tiny, composable progressive enhancement framework for the browser.",
   "packageManager": "bun@1.3.10",

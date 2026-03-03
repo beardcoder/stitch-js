@@ -6,9 +6,9 @@ description: Install stitch-js and enhance your first HTML element.
 ## Installation
 
 ```bash
-bun add stitch-js
+bun add @beardcoder/stitch-js
 # or
-npm install stitch-js
+npm install @beardcoder/stitch-js
 ```
 
 ## Quick Start
@@ -26,7 +26,7 @@ Add interactive behavior to your HTML with just a few lines of JavaScript:
 </div>
 
 <script type="module">
-  import { enhance, tabs } from "stitch-js";
+  import { enhance, tabs } from "@beardcoder/stitch-js";
   enhance("[data-tabs]", tabs());
 </script>
 ```
@@ -50,7 +50,7 @@ All sizes are minified + gzipped. Tree-shaking ensures you only pay for what you
 For a declarative setup, use `register` and `autoInit`:
 
 ```ts
-import { register, autoInit, tabs, accordion } from "stitch-js";
+import { register, autoInit, tabs, accordion } from "@beardcoder/stitch-js";
 
 register("[data-tabs]", tabs());
 register("[data-accordion]", accordion());

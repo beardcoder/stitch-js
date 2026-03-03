@@ -8,8 +8,8 @@ description: API reference for enhance, destroyAll, register, init, autoInit, an
 Find all elements matching `selector` and attach the component `factory` to each. Idempotent — calling twice on the same element is a no-op.
 
 ```ts
-import { enhance } from "stitch-js";
-import { accordion } from "stitch-js/components/accordion";
+import { enhance } from "@beardcoder/stitch-js";
+import { accordion } from "@beardcoder/stitch-js/components/accordion";
 
 const instances = enhance("[data-accordion]", accordion({ multiple: true }));
 instances.forEach((i) => i.destroy());
@@ -31,7 +31,7 @@ Destroy all enhanced instances on matching elements. Pass a `factory` to only re
 Declarative auto-initialization:
 
 ```ts
-import { register, autoInit, tabs, accordion } from "stitch-js";
+import { register, autoInit, tabs, accordion } from "@beardcoder/stitch-js";
 
 register("[data-tabs]", tabs());
 register("[data-accordion]", accordion());
@@ -43,7 +43,7 @@ autoInit(); // runs on DOMContentLoaded
 The core primitive for creating components. Provides a scoped `ComponentContext` with DOM queries, delegated events, attribute parsing, and auto-cleanup.
 
 ```ts
-import { defineComponent, enhance } from "stitch-js";
+import { defineComponent, enhance } from "@beardcoder/stitch-js";
 
 const toggle = defineComponent(
   { activeClass: "is-active" },

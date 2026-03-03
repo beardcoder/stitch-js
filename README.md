@@ -33,9 +33,9 @@ All sizes are minified + gzipped. Tree-shaking ensures you only pay for what you
 ## Install
 
 ```bash
-bun add stitch-js
+bun add @beardcoder/stitch-js
 # or
-npm install stitch-js
+npm install @beardcoder/stitch-js
 ```
 
 ## Quick Start
@@ -51,7 +51,7 @@ npm install stitch-js
 </div>
 
 <script type="module">
-  import { enhance, tabs } from "stitch-js";
+  import { enhance, tabs } from "@beardcoder/stitch-js";
   enhance("[data-tabs]", tabs());
 </script>
 ```
@@ -63,8 +63,8 @@ npm install stitch-js
 Find all elements matching `selector` and attach the component `factory` to each. Idempotent — calling twice on the same element is a no-op.
 
 ```ts
-import { enhance } from "stitch-js";
-import { accordion } from "stitch-js/components/accordion";
+import { enhance } from "@beardcoder/stitch-js";
+import { accordion } from "@beardcoder/stitch-js/components/accordion";
 
 const instances = enhance("[data-accordion]", accordion({ multiple: true }));
 instances.forEach((i) => i.destroy());
@@ -83,7 +83,7 @@ Destroy all enhanced instances on matching elements. Pass a `factory` to only re
 Declarative auto-initialization:
 
 ```ts
-import { register, autoInit, tabs, accordion } from "stitch-js";
+import { register, autoInit, tabs, accordion } from "@beardcoder/stitch-js";
 
 register("[data-tabs]", tabs());
 register("[data-accordion]", accordion());
@@ -97,7 +97,7 @@ autoInit(); // runs on DOMContentLoaded
 The core primitive for creating components. Provides a scoped `ComponentContext` with DOM queries, delegated event handling, attribute parsing, and automatic cleanup.
 
 ```ts
-import { defineComponent, enhance } from "stitch-js";
+import { defineComponent, enhance } from "@beardcoder/stitch-js";
 
 const toggle = defineComponent(
   { activeClass: "is-active" },   // typed defaults
@@ -179,7 +179,7 @@ Pass structured data from server-rendered HTML into your components. This is ess
 ```
 
 ```ts
-import { defineComponent, enhance } from "stitch-js";
+import { defineComponent, enhance } from "@beardcoder/stitch-js";
 
 // TanStack Table example
 const dataTable = defineComponent({}, (ctx) => {
@@ -205,7 +205,7 @@ A minimal, dependency-free reactive primitive.
 ### `createStore(initial)`
 
 ```ts
-import { createStore } from "stitch-js";
+import { createStore } from "@beardcoder/stitch-js";
 
 const count = createStore(0);
 
@@ -224,7 +224,7 @@ unsub(); // stop listening
 Derived read-only store that auto-updates when sources change.
 
 ```ts
-import { createStore, computed } from "stitch-js";
+import { createStore, computed } from "@beardcoder/stitch-js";
 
 const firstName = createStore("Jane");
 const lastName = createStore("Doe");
@@ -244,7 +244,7 @@ fullName.get(); // "John Doe"
 Run a side-effect when sources change. Runs immediately, re-runs on change, and supports cleanup.
 
 ```ts
-import { createStore, effect } from "stitch-js";
+import { createStore, effect } from "@beardcoder/stitch-js";
 
 const theme = createStore("light");
 
@@ -262,7 +262,7 @@ stop();            // tear down
 ### Combining store with components
 
 ```ts
-import { defineComponent, enhance, createStore, effect } from "stitch-js";
+import { defineComponent, enhance, createStore, effect } from "@beardcoder/stitch-js";
 
 const counter = defineComponent({ start: 0 }, (ctx) => {
   const count = createStore(ctx.options.start);
@@ -286,7 +286,7 @@ Subscribe to a store inside a component with automatic cleanup on destroy.
 The listener fires immediately with the current value and re-fires on every change.
 
 ```ts
-import { defineComponent, enhance, createStore } from "stitch-js";
+import { defineComponent, enhance, createStore } from "@beardcoder/stitch-js";
 
 const count = createStore(0);
 
@@ -307,7 +307,7 @@ and syncs across browser tabs via the `storage` event. It implements the same
 `Store` interface, so it works with `effect`, `computed`, and `ctx.sync`.
 
 ```ts
-import { persistedStore, effect } from "stitch-js";
+import { persistedStore, effect } from "@beardcoder/stitch-js";
 
 const theme = persistedStore("theme", "light");
 
@@ -338,7 +338,7 @@ so it works with `effect`, `computed`, and `ctx.sync`.
 ### `createRouter(patterns?)`
 
 ```ts
-import { createRouter, effect } from "stitch-js";
+import { createRouter, effect } from "@beardcoder/stitch-js";
 
 const router = createRouter(["", "about", "users/:id"]);
 
@@ -448,7 +448,7 @@ enhance("[data-animate]", animate({ once: true }));
 Use `defineComponent` for scoped DOM access, delegated events, and auto-cleanup:
 
 ```ts
-import { defineComponent, enhance } from "stitch-js";
+import { defineComponent, enhance } from "@beardcoder/stitch-js";
 
 const tooltip = defineComponent(
   { position: "top" as "top" | "bottom" },
@@ -470,7 +470,7 @@ enhance("[data-tooltip-bottom]", tooltip({ position: "bottom" }));
 Or use the low-level `ComponentFactory` type for maximum control:
 
 ```ts
-import type { ComponentFactory } from "stitch-js";
+import type { ComponentFactory } from "@beardcoder/stitch-js";
 
 function myBehavior(): ComponentFactory {
   return (el) => {

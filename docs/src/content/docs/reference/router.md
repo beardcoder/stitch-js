@@ -8,7 +8,7 @@ A simple hash-based client-side router. Exposes a store-compatible interface so 
 ## `createRouter(patterns?, options?)`
 
 ```ts
-import { createRouter, effect } from "stitch-js";
+import { createRouter, effect } from "@beardcoder/stitch-js";
 
 const router = createRouter(["", "about", "users/:id"]);
 
@@ -57,7 +57,7 @@ pass a unique `key` to each router. Keyed routers encode their state in the
 hash using a `key=value` format separated by `&`.
 
 ```ts
-import { createRouter } from "stitch-js";
+import { createRouter } from "@beardcoder/stitch-js";
 
 const tabRouter = createRouter(["tab1", "tab2", "tab3"], { key: "tabs" });
 const accordionRouter = createRouter(["section1", "section2"], { key: "accordion" });

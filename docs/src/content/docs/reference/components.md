@@ -19,8 +19,8 @@ The built-in components are examples built on `defineComponent`. Use them direct
 ```
 
 ```ts
-import { enhance } from "stitch-js";
-import { tabs } from "stitch-js/components/tabs";
+import { enhance } from "@beardcoder/stitch-js";
+import { tabs } from "@beardcoder/stitch-js/components/tabs";
 
 enhance("[data-tabs]", tabs({ defaultIndex: 0 }));
 ```
@@ -48,8 +48,8 @@ enhance("[data-tabs]", tabs({ defaultIndex: 0 }));
 ```
 
 ```ts
-import { enhance } from "stitch-js";
-import { accordion } from "stitch-js/components/accordion";
+import { enhance } from "@beardcoder/stitch-js";
+import { accordion } from "@beardcoder/stitch-js/components/accordion";
 
 enhance("[data-accordion]", accordion({ multiple: false }));
 ```
@@ -77,8 +77,8 @@ Progressively enhances a `<form>` to submit via `fetch` (AJAX) instead of a full
 ```
 
 ```ts
-import { enhance } from "stitch-js";
-import { form } from "stitch-js/components/form";
+import { enhance } from "@beardcoder/stitch-js";
+import { form } from "@beardcoder/stitch-js/components/form";
 
 enhance("[data-form]", form({
   onSuccess: (el, res) => console.log("Sent!", res),
@@ -105,8 +105,8 @@ Triggers a CSS class when the element enters the viewport using `IntersectionObs
 ```
 
 ```ts
-import { enhance } from "stitch-js";
-import { animate } from "stitch-js/components/animate";
+import { enhance } from "@beardcoder/stitch-js";
+import { animate } from "@beardcoder/stitch-js/components/animate";
 
 enhance("[data-animate]", animate({ once: true }));
 ```

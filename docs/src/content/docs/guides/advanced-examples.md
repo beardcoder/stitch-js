@@ -15,7 +15,7 @@ Stack more than one behavior on the same element by calling `enhance` multiple t
 ```
 
 ```ts
-import { enhance, defineComponent } from "stitch-js";
+import { enhance, defineComponent } from "@beardcoder/stitch-js";
 
 const highlight = defineComponent({}, (ctx) => {
   ctx.on("mouseenter", () => ctx.el.classList.add("is-highlighted"));
@@ -50,7 +50,7 @@ Combine `defineComponent` with `createStore` and `effect` to build a self-contai
 ```
 
 ```ts
-import { defineComponent, enhance, createStore, effect } from "stitch-js";
+import { defineComponent, enhance, createStore, effect } from "@beardcoder/stitch-js";
 
 const counter = defineComponent({ start: 0 }, (ctx) => {
   const count = createStore(ctx.options.start);
@@ -78,7 +78,7 @@ Persist user preferences to `localStorage` and keep the UI in sync across tabs.
 ```
 
 ```ts
-import { defineComponent, enhance, persistedStore, effect } from "stitch-js";
+import { defineComponent, enhance, persistedStore, effect } from "@beardcoder/stitch-js";
 
 const theme = persistedStore<"light" | "dark">("theme", "light");
 
@@ -113,7 +113,7 @@ Use `createRouter` together with `ctx.sync` to render different content dependin
 ```
 
 ```ts
-import { defineComponent, enhance, createRouter } from "stitch-js";
+import { defineComponent, enhance, createRouter } from "@beardcoder/stitch-js";
 
 const router = createRouter(["", "about", "users/:id"]);
 
@@ -143,7 +143,7 @@ Pass server-rendered configuration or datasets into a component and hand them of
 ```
 
 ```ts
-import { defineComponent, enhance } from "stitch-js";
+import { defineComponent, enhance } from "@beardcoder/stitch-js";
 
 interface ChartConfig {
   type: "bar" | "line";
@@ -183,7 +183,7 @@ For larger payloads such as table rows or column definitions, use an inline `<sc
 ```
 
 ```ts
-import { defineComponent, enhance } from "stitch-js";
+import { defineComponent, enhance } from "@beardcoder/stitch-js";
 
 const dataTable = defineComponent({}, (ctx) => {
   const { columns, rows } = ctx.data<{ columns: unknown[]; rows: unknown[] }>();
