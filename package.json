@@ -70,6 +70,10 @@
     "access": "public",
     "provenance": true
   },
+  "overrides": {
+    "npm": "^11.11.0",
+    "minimatch": "^10.2.4"
+  },
   "scripts": {
     "clean": "rm -rf dist",
     "build": "bun run scripts/build.ts",
