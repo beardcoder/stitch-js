@@ -67,12 +67,7 @@
     "LICENSE"
   ],
   "publishConfig": {
-    "access": "public",
-    "provenance": true
-  },
-  "overrides": {
-    "npm": "^11.11.0",
-    "minimatch": "^10.2.4"
+    "access": "public"
   },
   "scripts": {
     "clean": "rm -rf dist",
