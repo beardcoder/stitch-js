@@ -502,7 +502,7 @@ Releases are fully automated via GitHub Actions + Semantic Release.
 
 ### Commit Style (required for automatic versioning)
 
-- `fix:` -> patch release
+- `fix:`, `perf:`, `refactor:`, `chore:`, `docs:`, `test:`, `build:`, `ci:` -> patch release
 - `feat:` -> minor release
 - `feat!:` or `BREAKING CHANGE:` -> major release
 
