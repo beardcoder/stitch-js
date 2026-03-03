@@ -1,3 +1,9 @@
+## [1.0.4](https://github.com/beardcoder/stitch-js/compare/v1.0.3...v1.0.4) (2026-03-03)
+
+### Bug Fixes
+
+* generate passthrough barrel files post-build to fix broken re-exports ([44bc173](https://github.com/beardcoder/stitch-js/commit/44bc1731c90936d8fb53d91fb15cb6293620ea9c))
+
 ## [1.0.3](https://github.com/beardcoder/stitch-js/compare/v1.0.2...v1.0.3) (2026-03-03)
 
 ### Bug Fixes
