@@ -1,1 +1,99 @@
-{"homepage":"https://beardcoder.github.io/stitch-js","devDependencies":{"linkedom":"^0.18.12"}}
+{
+  "name": "stitch-js",
+  "version": "0.1.0",
+  "description": "A tiny, composable progressive enhancement framework for the browser.",
+  "type": "module",
+  "license": "MIT",
+  "author": "beardcoder",
+  "homepage": "https://beardcoder.github.io/stitch-js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/beardcoder/stitch-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/beardcoder/stitch-js/issues"
+  },
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20.11.0",
+    "bun": ">=1.1.0"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.js"
+    },
+    "./core/store": {
+      "types": "./dist/core/store.d.ts",
+      "import": "./dist/core/store.js"
+    },
+    "./core/persisted": {
+      "types": "./dist/core/persisted.d.ts",
+      "import": "./dist/core/persisted.js"
+    },
+    "./core/router": {
+      "types": "./dist/core/router.d.ts",
+      "import": "./dist/core/router.js"
+    },
+    "./components/tabs": {
+      "types": "./dist/components/tabs.d.ts",
+      "import": "./dist/components/tabs.js"
+    },
+    "./components/accordion": {
+      "types": "./dist/components/accordion.d.ts",
+      "import": "./dist/components/accordion.js"
+    },
+    "./components/form": {
+      "types": "./dist/components/form.d.ts",
+      "import": "./dist/components/form.js"
+    },
+    "./components/animate": {
+      "types": "./dist/components/animate.d.ts",
+      "import": "./dist/components/animate.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "bun run scripts/build.ts",
+    "test": "bun test --preload ./test/preload.ts",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run test && npm run typecheck && npm run build",
+    "prepack": "npm run build",
+    "release": "semantic-release"
+  },
+  "keywords": [
+    "progressive-enhancement",
+    "typescript",
+    "frontend",
+    "components",
+    "store"
+  ],
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^12.0.6",
+    "@semantic-release/npm": "^13.1.5",
+    "@semantic-release/release-notes-generator": "^14.1.0",
+    "linkedom": "^0.18.12",
+    "semantic-release": "^25.0.3",
+    "typescript": "^5.9.3"
+  }
+}

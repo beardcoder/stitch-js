@@ -489,6 +489,23 @@ bun run build
 bun run typecheck
 ```
 
+## Rolling Releases (GitHub + npm)
+
+Releases are fully automated via GitHub Actions + Semantic Release.
+
+- Every push to `main` runs verification (`test`, `typecheck`, `build`).
+- If verification succeeds, Semantic Release creates a GitHub Release and publishes to npm.
+
+### Required GitHub Secrets
+
+- `NPM_TOKEN` (npm automation token with publish rights)
+
+### Commit Style (required for automatic versioning)
+
+- `fix:` -> patch release
+- `feat:` -> minor release
+- `feat!:` or `BREAKING CHANGE:` -> major release
+
 ## License
 
 MIT
