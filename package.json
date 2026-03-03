@@ -1,6 +1,6 @@
 {
   "name": "stitch-js",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A tiny, composable progressive enhancement framework for the browser.",
   "type": "module",
   "license": "MIT",
