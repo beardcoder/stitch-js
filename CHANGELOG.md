@@ -1,3 +1,11 @@
+## [1.0.1](https://github.com/beardcoder/stitch-js/compare/v1.0.0...v1.0.1) (2026-03-03)
+
+### Bug Fixes
+
+* **ci:** align github actions bun version with lockfile ([031ee46](https://github.com/beardcoder/stitch-js/commit/031ee461d8ac69641fd8ac390282ef79f8f1a037))
+* **ci:** switch release pipeline to bun lockfile ([b23debd](https://github.com/beardcoder/stitch-js/commit/b23debdd988959044e2e3a359cab71c5432b0081))
+* **deps:** harden minimatch resolution for dependabot ([f3d00cb](https://github.com/beardcoder/stitch-js/commit/f3d00cb2edb56a2041d691189a824ca4340def03))
+
 ## 1.0.0 (2026-03-03)
 
 ### Features
