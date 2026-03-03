@@ -1,3 +1,9 @@
+## [1.0.2](https://github.com/beardcoder/stitch-js/compare/v1.0.1...v1.0.2) (2026-03-03)
+
+### Bug Fixes
+
+* **release:** publish under scoped npm package ([ed32fc2](https://github.com/beardcoder/stitch-js/commit/ed32fc28c71fc562f3a304848bd7d605898572cd))
+
 ## [1.0.1](https://github.com/beardcoder/stitch-js/compare/v1.0.0...v1.0.1) (2026-03-03)
 
 ### Bug Fixes
